@@ -18,7 +18,7 @@ setup(
     description="Easy and advanced Libgen site parser",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    version='0.1.0',
+    version='0.1.1',
     packages=['libgenparser', 'libgenparser.__future__'],
     url='https://github.com/BeastImran/libgenparser',
     author='BeastImran',

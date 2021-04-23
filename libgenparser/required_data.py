@@ -10,7 +10,7 @@ BOOK_TAG_SEARCH_URL = "http://libgen.rs/search.php?req={}&open=0&res=25&view=det
 BOOK_EXTENSION_SEARCH_URL = "http://libgen.rs/search.php?req={}&open=0&res=25&view=detailed&phrase=1&column=extension"
 
 # will be used to map data parsed on site.
-col_names = [
+column_names = [
     'Thumb',
     'Download_link',
     'MD5',

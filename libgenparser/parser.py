@@ -83,7 +83,7 @@ class LibgenParser:
                 ext = size_and_ext[3].string
                 del size_and_ext
 
-                book = dict(zip(col_names,
+                book = dict(zip(column_names,
                                 [thumb, book_url, md5, title, author, year, lang, pages, book_id, size, ext]))
 
                 data.append(book)
@@ -103,7 +103,7 @@ class LibgenParser:
             return data
 
     @lru_cache(maxsize=cache_length)
-    def __beautify(self, result: requests):
+    def __beautify(self, result: requests) -> typing.Union[list, None]:
         """
         Uses BeautifulSoup to find all tables in site by using the received request response.
         The response is a requests object (which contains the html content).
@@ -115,6 +115,7 @@ class LibgenParser:
         return self.__send_to_parse(main_tables)
 
     @staticmethod
+    @lru_cache(maxsize=cache_length)
     def resolve_download_link(md5) -> str:
         """
         resolves the book's download link by using it's md5 identifier
@@ -126,6 +127,20 @@ class LibgenParser:
         """
         return BeautifulSoup(requests.get(f"http://library.lol/main/{md5}").text, "lxml").find('li').find('a')['href']
 
+    def download(self, md5: str, path: str) -> None:
+        """
+        downloads book using it's md5 identifier. Uses resolve_download_link method
+        to get the book's download link. Write the file to provided path.
+
+        :param md5: md5 identifier of book.
+        :param path: full path to the destination folder included with file name.
+        :return: returns True on successful download and write of file else return False.
+        """
+        url = self.resolve_download_link(md5)
+        with open(path, 'wb+') as book:
+            content = requests.get(url)
+            book.write(content.content)
+
     def search_title(self, title: str) -> typing.Union[list[dict], None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
@@ -134,9 +149,9 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=title, title=True))
+        return self.__beautify(self.__get_page(query=title.lower(), title=True))
 
-    def search_author(self, author_name: str):
+    def search_author(self, author_name: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -144,9 +159,9 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=author_name, author=True))
+        return self.__beautify(self.__get_page(query=author_name.lower(), author=True))
 
-    def search_year(self, year: typing.Union[str, int]):
+    def search_year(self, year: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -156,7 +171,7 @@ class LibgenParser:
         """
         return self.__beautify(self.__get_page(query=year, year=True))
 
-    def search_md5(self, md5: str):
+    def search_md5(self, md5: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -164,9 +179,9 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=md5, md5=True))
+        return self.__beautify(self.__get_page(query=md5.lower(), md5=True))
 
-    def search_publisher(self, publisher: str):
+    def search_publisher(self, publisher: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -174,9 +189,9 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=publisher, publisher=True))
+        return self.__beautify(self.__get_page(query=publisher.lower(), publisher=True))
 
-    def search_isbn(self, isbn: str):
+    def search_isbn(self, isbn: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -184,9 +199,9 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=isbn, isbn=True))
+        return self.__beautify(self.__get_page(query=isbn.lower(), isbn=True))
 
-    def search_extension(self, extension: str):
+    def search_extension(self, extension: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -194,9 +209,9 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=extension, extension=True))
+        return self.__beautify(self.__get_page(query=extension.lower(), extension=True))
 
-    def search_tag(self, tag: str):
+    def search_tag(self, tag: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -204,9 +219,9 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=tag, tag=True))
+        return self.__beautify(self.__get_page(query=tag.lower(), tag=True))
 
-    def search_language(self, language: str):
+    def search_language(self, language: str) -> typing.Union[list, None]:
         """
         requests site with title (string) and returns list of parsed dictionary data on success.
 
@@ -214,4 +229,4 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(self.__get_page(query=language, language=True))
+        return self.__beautify(self.__get_page(query=language.lower(), language=True))

@@ -83,7 +83,7 @@ class LibgenParser:
                 ext = size_and_ext[3].string
                 del size_and_ext
 
-                book = dict(zip(col_names,
+                book = dict(zip(column_names,
                                 [thumb, book_url, md5, title, author, year, lang, pages, book_id, size, ext]))
 
                 data.append(book)
@@ -115,7 +115,8 @@ class LibgenParser:
         return await self.__send_to_parse(main_tables)
 
     @staticmethod
-    async def resolve_download_link(md5) -> str:
+    @AsyncLRU(maxsize=cache_length)
+    async def resolve_download_link(md5: str) -> str:
         """
         resolves the book's download link by using it's md5 identifier
         and parses the download page of book for available download links
@@ -124,7 +125,29 @@ class LibgenParser:
         :param md5: md5 hash identifier of that specific book.
         :return: returns download url string of book on success.
         """
-        return BeautifulSoup(requests.get(f"http://library.lol/main/{md5}").text, "lxml").find('li').find('a')['href']
+        soup = BeautifulSoup(requests.get(f"http://library.lol/main/{md5}").text, "lxml")
+        if "file isn't found" in soup.text:
+            raise AttributeError("Wrong md5 identifier or md5 doesn't exist.")
+
+        elif "404 Not Found" in soup.text:
+            raise AttributeError("Invalid md5 identifier.")
+
+        else:
+            return soup.find('li').find('a')['href']
+
+    async def download(self, md5: str, path: str) -> None:
+        """
+        downloads book using it's md5 identifier. Uses resolve_download_link method
+        to get the book's download link. Write the file to provided path.
+
+        :param md5: md5 identifier of book.
+        :param path: full path to the destination folder included with file name.
+        :return: returns True on successful download and write of file else return False.
+        """
+        url = await self.resolve_download_link(md5)
+        with open(path, 'wb+') as book:
+            content = requests.get(url)
+            book.write(content.content)
 
     async def search_title(self, title: str) -> typing.Union[list, None]:
         """
@@ -134,7 +157,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=title, title=True))
+        return await self.__beautify(await self.__get_page(query=title.lower(), title=True))
 
     async def search_author(self, author_name: str):
         """
@@ -144,7 +167,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=author_name, author=True))
+        return await self.__beautify(await self.__get_page(query=author_name.lower(), author=True))
 
     async def search_year(self, year: typing.Union[str, int]):
         """
@@ -154,7 +177,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=year, year=True))
+        return await self.__beautify(await self.__get_page(query=year.lower(), year=True))
 
     async def search_md5(self, md5: str):
         """
@@ -164,7 +187,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=md5, md5=True))
+        return await self.__beautify(await self.__get_page(query=md5.lower(), md5=True))
 
     async def search_publisher(self, publisher: str):
         """
@@ -174,7 +197,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=publisher, publisher=True))
+        return await self.__beautify(await self.__get_page(query=publisher.lower(), publisher=True))
 
     async def search_isbn(self, isbn: str):
         """
@@ -184,7 +207,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=isbn, isbn=True))
+        return await self.__beautify(await self.__get_page(query=isbn.lower(), isbn=True))
 
     async def search_extension(self, extension: str):
         """
@@ -194,7 +217,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=extension, extension=True))
+        return await self.__beautify(await self.__get_page(query=extension.lower(), extension=True))
 
     async def search_tag(self, tag: str):
         """
@@ -204,7 +227,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=tag, tag=True))
+        return await self.__beautify(await self.__get_page(query=tag.lower(), tag=True))
 
     async def search_language(self, language: str):
         """
@@ -214,4 +237,4 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await self.__get_page(query=language, language=True))
+        return await self.__beautify(await self.__get_page(query=language.lower(), language=True))
