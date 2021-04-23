@@ -3,7 +3,7 @@
 Lets you parse libgen website easily. Uses [libgen.rs](http://libgen.rs) site.
 
 ### Quick LINKS
-
+#
 1. [Installation](#installation)
 
 2. [Requirements](#requirements)
@@ -17,6 +17,7 @@ Lets you parse libgen website easily. Uses [libgen.rs](http://libgen.rs) site.
 4. [Supported Features](#supported-features)
 
 ### INSTALLATION
+#
 
 Use the below command to install and start using.
 
@@ -25,6 +26,7 @@ $ pip install libgenparser
 ```
 
 ### REQUIREMENTS
+#
 
 #### Dependencies
 
@@ -72,6 +74,7 @@ If not installed automatically, use the below respective commands to install mis
       ```
 
 ### USAGE
+#
 
 Start using by importing as follows.
 
@@ -137,6 +140,7 @@ from libgenparser.__future__.parser import LibgenParser
 `LibgenParser` from `__future__` package contains async versions of all methods.
 
 ### Supported features
+#
 
 * Download link
 
