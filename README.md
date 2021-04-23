@@ -2,7 +2,7 @@
 
 Lets you parse libgen website easily. Uses [libgen.rs](http://libgen.rs) site.
 
-### Quick LINKS
+### Quick Links
 
 #
 
@@ -43,7 +43,7 @@ $ pip install libgenparser
 
 Project was built on [[c]python3](https://www.python.org/downloads/). Pip must be up-to-date.
 
-To update pip do as follows:
+To update pip, do as follows:
 
 ```bash
 $ python -m pip install -U pip
@@ -56,7 +56,7 @@ This package has following dependencies. All of them probably will be installed 
 * [requests](https://pypi.org/project/requests/)
 * [beautifulsoup4](https://pypi.org/project/beautifulsoup4/)
 * [lxml](https://pypi.org/project/lxml/) (for fast parsing of html)
-* [async-cache](https://pypi.org/project/async-cache/) (only if you plan to use async methods) (optional)
+* [async-cache](https://pypi.org/project/async-cache/) (for caching of async methods) (optional)
 
 #### Missing modules
 
@@ -95,7 +95,6 @@ If not installed automatically, use the below respective commands to install mis
       ```
 
 ### USAGE
-
 #
 
 Start using by importing as follows.
@@ -122,31 +121,26 @@ libgen.search_title("Clean python")
 
 * Provide a title string to `libgen.search_title()`.
 
-
 * Provide author's name string to`libgen.search_author()`.
-
 
 * Provide year value (int/string) to `libgen.search_year()`.
 
-
 * Provide MD5 identifier string of ebook to `libgen.search_md5()`.
-
 
 * Provide publisher's name string to `libgen.search_publisher()`.
 
-
 * Provide ISBN identifier string of ebook to `libgen.search_isbn()`.
-
 
 * Provide file extension string of ebook to `libgen.searcg_extension()`.
 
-
 * Provide language string to `libgen.search_language()`.
-
 
 * Provide tag string to `libgen.search_tag()`.
 
-<br>
+* Provide MD5 identifier to `libgen.resolve_download_link()`
+
+* Provide MD5 identifier and path to download file to `libgen.download()`
+
 
 **This package has asynchronous (asyncio) support also.**
 
@@ -1060,9 +1054,9 @@ libgen.download(md5="6066C1B029ADA93730B364C1592FB015", path="./books/6066C1B029
 
 <details>
 <summary>output</summary>
-![alt text](download_output.jpg "book download output")
+<img src="https://raw.githubusercontent.com/BeastImran/libgenparser/main/download_output.jpg"/></a>
 </details>
 
 ## Final words
 
-Hope this project made you life a little easier. Any contribution? pm me in [telegram](https://t.me/beastimran).
+Hope this project made your life a little easier. Any contribution? pm me in [telegram](https://t.me/beastimran).
