@@ -2,20 +2,20 @@ import typing
 
 import requests
 from bs4 import BeautifulSoup
-from cache import AsyncLRU as lru_cache
+from cache import AsyncLRU
 
 from libgenparser.required_data import *
 
 
 class LibgenParser:
-    cache_length = 1000
+    cache_length = 10000
 
-    def __init__(self, custom_cache_length=1000):
-        if custom_cache_length >= 0 and custom_cache_length != 1000:
+    def __init__(self, custom_cache_length=10000):
+        if custom_cache_length >= 0 and custom_cache_length != 10000:
             LibgenParser.cache_length = custom_cache_length
 
     @staticmethod
-    @lru_cache(maxsize=cache_length)
+    @AsyncLRU(maxsize=cache_length)
     async def __get_page(query, title=False, year=False, isbn=False, md5=False, publisher=False,
                          author=False, language=False, tag=False, extension=False) -> requests:
         """
@@ -102,7 +102,7 @@ class LibgenParser:
             data = self.__parse_data(main_tables[2].find_all('table'))
             return data
 
-    @lru_cache(maxsize=cache_length)
+    @AsyncLRU(maxsize=cache_length)
     async def __beautify(self, result: requests):
         """
         Uses BeautifulSoup to find all tables in site by using the received request response.
@@ -144,7 +144,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=author_name, author=True))
+        return await self.__beautify(await self.__get_page(query=author_name, author=True))
 
     async def search_year(self, year: typing.Union[str, int]):
         """
@@ -154,7 +154,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=year, year=True))
+        return await self.__beautify(await self.__get_page(query=year, year=True))
 
     async def search_md5(self, md5: str):
         """
@@ -164,7 +164,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=md5, md5=True))
+        return await self.__beautify(await self.__get_page(query=md5, md5=True))
 
     async def search_publisher(self, publisher: str):
         """
@@ -174,7 +174,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=publisher, publisher=True))
+        return await self.__beautify(await self.__get_page(query=publisher, publisher=True))
 
     async def search_isbn(self, isbn: str):
         """
@@ -184,7 +184,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=isbn, isbn=True))
+        return await self.__beautify(await self.__get_page(query=isbn, isbn=True))
 
     async def search_extension(self, extension: str):
         """
@@ -194,7 +194,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=extension, extension=True))
+        return await self.__beautify(await self.__get_page(query=extension, extension=True))
 
     async def search_tag(self, tag: str):
         """
@@ -204,7 +204,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=tag, tag=True))
+        return await self.__beautify(await self.__get_page(query=tag, tag=True))
 
     async def search_language(self, language: str):
         """
@@ -214,4 +214,4 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return self.__beautify(await self.__get_page(query=language, language=True))
+        return await self.__beautify(await self.__get_page(query=language, language=True))

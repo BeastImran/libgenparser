@@ -10,6 +10,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: Implementation :: CPython",
+    "Operating System :: OS Independent",
 ]
 
 setup(
@@ -17,12 +18,13 @@ setup(
     description="Easy and advanced Libgen site parser",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    version='0.1.0',
+    version='0.1.2',
     packages=['libgenparser', 'libgenparser.__future__'],
     url='https://github.com/BeastImran/libgenparser',
-    license='',
-    author='Beast',
+    author='BeastImran',
     author_email='imsalmanran789@gmail.com',
-    install_requires=["lxml", "beautifulsoup4", "requests"],
-    classifiers=classifiers
+    install_requires=["lxml", "beautifulsoup4", "requests", "async-cache"],
+    classifiers=classifiers,
+    python_requires='>=3.6',
+    platforms='any',
 )
