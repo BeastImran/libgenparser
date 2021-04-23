@@ -1,11 +1,49 @@
 import typing
 
+import requests
 from bs4 import BeautifulSoup
+from cache import AsyncLRU as lru_cache
 
-from .pages import *
+from libgenparser.required_data import *
 
 
 class LibgenParser:
+    cache_length = 1000
+
+    def __init__(self, custom_cache_length=1000):
+        if custom_cache_length >= 0 and custom_cache_length != 1000:
+            LibgenParser.cache_length = custom_cache_length
+
+    @staticmethod
+    @lru_cache(maxsize=cache_length)
+    async def __get_page(query, title=False, year=False, isbn=False, md5=False, publisher=False,
+                         author=False, language=False, tag=False, extension=False) -> requests:
+        """
+        Uses respective url and returns the received requests object.
+
+        :return: returns a respective requests object on success.
+        """
+        query_parsed = "+".join(query.split(" "))
+        if title:
+            return requests.get(BOOK_TITLE_SEARCH_URL.format(query_parsed))
+        elif year:
+            return requests.get(BOOK_YEAR_SEARCH_URL.format(query_parsed))
+        elif isbn:
+            return requests.get(BOOK_ISBN_SEARCH_URL.format(query_parsed))
+        elif md5:
+            return requests.get(BOOK_MD5_SEARCH_URL.format(query_parsed))
+        elif publisher:
+            return requests.get(BOOK_PUBLISHER_SEARCH_URL.format(query_parsed))
+        elif author:
+            return requests.get(BOOK_AUTHOR_SEARCH_URL.format(query_parsed))
+        elif language:
+            return requests.get(BOOK_LANGUAGE_SEARCH_URL.format(query_parsed))
+        elif tag:
+            return requests.get(BOOK_TAG_SEARCH_URL.format(query_parsed))
+        elif extension:
+            return requests.get(BOOK_EXTENSION_SEARCH_URL.format(query_parsed))
+        else:
+            return requests.get(BOOK_TITLE_SEARCH_URL.format(query_parsed))
 
     @staticmethod
     def __parse_data(all_tables) -> list:
@@ -64,6 +102,7 @@ class LibgenParser:
             data = self.__parse_data(main_tables[2].find_all('table'))
             return data
 
+    @lru_cache(maxsize=cache_length)
     async def __beautify(self, result: requests):
         """
         Uses BeautifulSoup to find all tables in site by using the received request response.
@@ -95,7 +134,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=title, title=True))
+        return await self.__beautify(await self.__get_page(query=title, title=True))
 
     async def search_author(self, author_name: str):
         """
@@ -105,7 +144,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=author_name, author=True))
+        return self.__beautify(await self.__get_page(query=author_name, author=True))
 
     async def search_year(self, year: typing.Union[str, int]):
         """
@@ -115,7 +154,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=year, year=True))
+        return self.__beautify(await self.__get_page(query=year, year=True))
 
     async def search_md5(self, md5: str):
         """
@@ -125,7 +164,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=md5, md5=True))
+        return self.__beautify(await self.__get_page(query=md5, md5=True))
 
     async def search_publisher(self, publisher: str):
         """
@@ -135,7 +174,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=publisher, publisher=True))
+        return self.__beautify(await self.__get_page(query=publisher, publisher=True))
 
     async def search_isbn(self, isbn: str):
         """
@@ -145,7 +184,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=isbn, isbn=True))
+        return self.__beautify(await self.__get_page(query=isbn, isbn=True))
 
     async def search_extension(self, extension: str):
         """
@@ -155,7 +194,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=extension, extension=True))
+        return self.__beautify(await self.__get_page(query=extension, extension=True))
 
     async def search_tag(self, tag: str):
         """
@@ -165,7 +204,7 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=tag, tag=True))
+        return self.__beautify(await self.__get_page(query=tag, tag=True))
 
     async def search_language(self, language: str):
         """
@@ -175,4 +214,4 @@ class LibgenParser:
         :return: list: list of parsed dictionary data on success.
         :return: None when search result was empty (most probably title not found (empty result))
         """
-        return await self.__beautify(await get_page(query=language, language=True))
+        return self.__beautify(await self.__get_page(query=language, language=True))
