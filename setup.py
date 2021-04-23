@@ -1,6 +1,6 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-with open('README.md', "r") as desc:
+with open('README.md', "r", encoding="utf8") as desc:
     long_description = desc.read()
 
 classifiers = [
@@ -18,8 +18,8 @@ setup(
     description="Easy and advanced Libgen site parser",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    version='0.1.1',
-    packages=['libgenparser', 'libgenparser.__future__'],
+    version='1.0.0',
+    packages=find_packages(),
     url='https://github.com/BeastImran/libgenparser',
     author='BeastImran',
     author_email='imsalmanran789@gmail.com',

@@ -1,5 +1,5 @@
-setuptools
-requests
-beautifulsoup4
-lxml
-async-cache
+setuptools~=56.0.0
+requests~=2.25.1
+beautifulsoup4~=4.9.3
+lxml~=4.6.3
+async-cache~=1.0.1
