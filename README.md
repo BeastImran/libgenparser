@@ -1,6 +1,6 @@
 # LIBGEN-PARSER
 
-Lets you parse libgen website easily. Uses [libgen.rs](http://libgen.rs) site.
+Lets you scrape libgen website easily. Uses [libgen.rs](http://libgen.rs) as source.
 
 ### Quick Links
 #
@@ -11,9 +11,17 @@ Lets you parse libgen website easily. Uses [libgen.rs](http://libgen.rs) site.
 
     . [Dependencies](#dependencies)
 
-    . [Missing Module issues](#missing-modules)
+    . [Missing Module issues](#missing-modules-issues)
 
 3. [Usage](#usage)
+
+    . [Initial steps](#usage)
+
+    . [Change cache length](#change-cache-length)
+
+    . [Feature usage](#feature-usage)
+
+    . [Async code](#async-asyncio)
 
 4. [Supported Features](#supported-features)
 
@@ -24,6 +32,8 @@ Lets you parse libgen website easily. Uses [libgen.rs](http://libgen.rs) site.
     . [Search examples](#search-examples)
 
     . [Download examples](#download-stuff)
+
+6. [Offline build](#offline-build)
 
 6. [Final words](#final-words)
 
@@ -40,7 +50,7 @@ $ pip install libgenparser
 ### REQUIREMENTS
 #
 
-Project was built on [[c]python3](https://www.python.org/downloads/). Pip must be up-to-date.
+Project was built on [Python3.9](https://www.python.org/downloads/). [Pip](https://pypi.org/project/pip/) must be up-to-date.
 
 To update pip, do as follows:
 
@@ -50,16 +60,16 @@ $ python -m pip install -U pip
 
 #### Dependencies
 
-This package has following dependencies. All of them probably will be installed automatically.
+This package has following dependencies. All of them, probably will be installed automatically.
 
 * [requests](https://pypi.org/project/requests/)
 * [beautifulsoup4](https://pypi.org/project/beautifulsoup4/)
 * [lxml](https://pypi.org/project/lxml/) (for fast parsing of html)
 * [async-cache](https://pypi.org/project/async-cache/) (for caching of async methods) (optional)
 
-#### Missing modules
+#### Missing modules issues?
 
-If not installed automatically, use the below respective commands to install missing modules. Follow as bellow:
+If not installed automatically, use the below respective commands to install missing modules.
 
 * All of them at once:
 
@@ -96,7 +106,7 @@ If not installed automatically, use the below respective commands to install mis
 ### USAGE
 #
 
-Start using by importing as follows.
+Start using by importing `LibgenParser` as follows.
 
 ```python
 from libgenparser.parser import LibgenParser
@@ -105,11 +115,11 @@ libgen = LibgenParser()
 libgen.search_title("Clean python")
 ```
 
-***LibgenParser*** class is contains all the required methods. All methods except `LibgenParser.resolve_download_link()` returns parsed ***list of dictionaries*** on success else they return ***None***. All methods are cached using ***functools.lru_cache()*** for faster results. Async methods in `__future__` are cached using `async-cache` module's `cache.AsyncLRU`.
+***LibgenParser*** class contains all required methods. All methods except `LibgenParser.resolve_download_link()` and `LibgenParser.download()`, returns parsed ***list of dictionaries*** on success else they return ***None***. All methods are cached using `functools.lru_cache()` for faster results on repeated query. Async methods are available in `__future__` package and are cached using `async-cache` module's `cache.AsyncLRU` which works similar to in-built functools.lru_cache().
 
-By default, cache_length (amount of objects to hold in memory) is 1000. This might be an issue of out of memory if you are running on very low memory machine. Change it as required by assigning a value (as length) to `custom_cache_length` in LibgenParser class as shown bellow. Setting it to `0` will store no cache.
+By default, cache_length (amount of objects to hold in memory) is 1000. This might be an issue of out of memory if you are running on very low memory machine. Change it as required by assigning a value (as length) to `custom_cache_length` in LibgenParser class as shown bellow. Setting it to `0` will store no cache. Number less than 0 will be ignored and cache_length will be set to default value. 
 
-**Change cache length**
+#### Change cache length
 
 ```python
 from libgenparser.parser import LibgenParser
@@ -118,39 +128,40 @@ libgen = LibgenParser(custom_cache_length=100)
 libgen.search_title("Clean python")
 ```
 
-* Provide a title string to `libgen.search_title()`.
+#### Feature Usage
 
-* Provide author's name string to`libgen.search_author()`.
+* Pass string of title to `libgen.search_title()` to search in title field.
 
-* Provide year value (int/string) to `libgen.search_year()`.
+* Pass string of author's name to`libgen.search_author()` to search in author field.
 
-* Provide MD5 identifier string of ebook to `libgen.search_md5()`.
+* Provide string value of to `libgen.search_year()` to search in year field.
 
-* Provide publisher's name string to `libgen.search_publisher()`.
+* Pass string of MD5 identifier of ebook to `libgen.search_md5()` to search in MD5 field.
 
-* Provide ISBN identifier string of ebook to `libgen.search_isbn()`.
+* Pass string of publisher's name to `libgen.search_publisher()` to search in publisher field.
 
-* Provide file extension string of ebook to `libgen.searcg_extension()`.
+* Pass string of ISBN identifier of ebook to `libgen.search_isbn()` to search in ISBN field.
 
-* Provide language string to `libgen.search_language()`.
+* Pass string of file extension of ebook to `libgen.searcg_extension()` to search in file extension field.
 
-* Provide tag string to `libgen.search_tag()`.
+* Pass string of language to `libgen.search_language()` to search in language field.
+  
+* Pass string of tag to `libgen.search_tag()` to search in tag field.
 
-* Provide MD5 identifier to `libgen.resolve_download_link()`
+* Pass string of MD5 identifier of ebook to `libgen.resolve_download_link()` to get a direct download link. Direct download link is scraped from `library.lol/main/{MD5}` formatted url.
 
-* Provide MD5 identifier and path to download file to `libgen.download()`
+* Pass string of MD5 identifier of ebook and path to download file to `libgen.download()` to download the file to provided path.
 
 
-**This package has asynchronous (asyncio) support also.**
+#### Async (asyncio)
+
+This module supports asynchronous (asyncio) code under `libgenparser.__future__` package.
 
 ```python
-from libgenparser.__future__.parser import LibgenParser
+from libgenparser.__future__.parser import LibgenParser # LibgenParser from __future__ package contains async versions of all methods.
 ```
 
-`LibgenParser` from `__future__` package contains async versions of all methods.
-
 ### Supported features
-
 #
 
 * **Download file using md5 identifier.**
@@ -165,7 +176,7 @@ from libgenparser.__future__.parser import LibgenParser
 
 * **Search for following fields**
 
-    Can query libgen.rs to search in following fields by using respective method shown above.
+    Can query libgen.rs to search in following fields by using respective method shown [below](#examples).
 
 
     * Title (default)
@@ -374,6 +385,34 @@ libgen.download(md5="6066C1B029ADA93730B364C1592FB015", path="./books/6066C1B029
 <img src="https://raw.githubusercontent.com/BeastImran/libgenparser/main/download_output.jpg"/></a>
 </details>
 
+# Offline build
+
+To do offline build, git clone [this](https://github.com/BeastImran/libgenparser) repository and use the provided [setup.py](https://raw.githubusercontent.com/BeastImran/libgenparser/main/setup.py) file to build the module. `setuptools` module is required and must be up-to-date.
+
+Git clone:
+
+You should now end up with a folder named `libgenparser` with all contents in this repository.
+
+```bash
+$ git clone https://github.com/BeastImran/libgenparser.git
+```
+
+Build:
+
+Navigate into libgenparser directory and use the following snippet to build. After a dump of lots of text, you should end up with three directories, bdist directory should have the `.whl` file with specific version name to do an offline install.
+
+```bash
+$ python setup.py sdist bdist_wheel
+```
+
+Offline install:
+
+Use the `.whl` wheel file under bdist directory as shown below to do an offline install. Virtual environment recommended.
+
+```bash
+$ pip install -i FILEWITH.whl
+```
+
 ## Final words
 
-Hope this project made your life a little easier. Any contribution? pm me in [telegram](https://t.me/beastimran).
+Hope this project made your life a little easier. You got any contribution, suggestion, involvement in project, anything else? ping me on [telegram](https://t.me/beastimran).

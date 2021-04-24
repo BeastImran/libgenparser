@@ -11,7 +11,7 @@ class LibgenParser:
     cache_length = 1000
 
     def __init__(self, custom_cache_length=1000):
-        if custom_cache_length >= 0 and custom_cache_length != 1000:
+        if custom_cache_length >= 0:
             LibgenParser.cache_length = custom_cache_length
 
     @staticmethod
